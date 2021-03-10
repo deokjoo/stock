@@ -35,10 +35,7 @@ def getFromDart(url, params):
 def getSingleAccount(corp_code, ts, te):
     #
     #
-    columns = ['유동자산', '비유동자산', '자산총계', '유동부채', '비유동부채', '부채총계', '자본금', '이익잉여금', '자본총계']
-    df = pd.DataFrame( columns=columns)
-
-    #
+    accDic   = {}
     for year in range(ts, te):
         param0 = \
         {
@@ -53,25 +50,44 @@ def getSingleAccount(corp_code, ts, te):
         rows = {}
         for i,  item in enumerate(data["list"]):
             if item["sj_nm"] == "재무상태표" and item["fs_div"] == "OFS":
-                idx       = item["bsns_year"]
-                col       = item["account_nm"]
-                rows[col] = item["thstrm_amount"]
+                idx  = item["bsns_year"]
+                col  = item["account_nm"]
+                val  = item["thstrm_amount"]
                 
-        df.loc[idx] =rows
+                rows[col] = val        
+        
+        accDic[str(year)]= rows
 
-        print("load %s", year)
+    return accDic
+
+'''
+'''
+def getAccount(*argv):
+    accDic = getSingleAccount(*argv)
+
+    df = pd.DataFrame(accDic).T
 
     df = df.apply( lambda x : x.str.replace(",",""))
-    df = df.astype("float") / 1000000
+    # df = df.astype("float")
 
-    return df
+    return df    
+
 
 '''
 '''
 if __name__ =="__main__":
-    company = ['00126380', '00401731']
+    # company = ['00126380', '00401731']
+
+    # with pd.ExcelWriter("1.xlsx") as writer:
+    #     for i, com in  enumerate(company):
+    #             a = getAccount(com, 2015, 2021)
+    #             a.to_excel(writer, com)
+
+    company = pd.read_excel("./t00/data/ref.xlsx", dtype=object)
+    part    = list(company['corp_code'][:-1])
 
     with pd.ExcelWriter("1.xlsx") as writer:
-        for i, com in  enumerate(company):
-                a = getSingleAccount(com, 2015, 2021)
-                a.to_excel(writer, com)
+        for com in part:
+            print(com)
+            a = getAccount(com, 2015, 2021)
+            a.to_excel(writer, com)

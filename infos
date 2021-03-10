@@ -79,3 +79,16 @@ with pd.ExcelWriter("1.xlsx") as writer:
     for i, com in  enumerate(company):
             a = getSingleAccount(com, 2015, 2021)
             a.to_excel(writer, com)
+
+
+from s01 import getAccount
+import pandas as pd
+
+company = pd.read_excel("./data/ref.xlsx", dtype=object)
+part    = list(company['corp_code'][100:110])
+
+with pd.ExcelWriter("1.xlsx") as writer:
+    for com in part:
+        print(com)
+        a = getAccount(com, 2015, 2021)
+        a.to_excel(writer, com)
