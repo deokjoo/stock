@@ -13,7 +13,11 @@ import pandas as pd
 import json
 import os.path
 
+'''
+'''
 apiKey       = "f1f64632cabe19da450a98456722f7bccf8d5c0f"
+# apiKey = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+
 dartSingleAnt= "https://opendart.fss.or.kr/api/fnlttSinglAcnt.json"
 
 '''
@@ -56,6 +60,7 @@ def getSingleAccount(corp_code, ts, te):
                 json.dump(data, json_file)
 
         if data['status'] != '000':
+            print(data['status'], data['message'])
             continue
 
         rows = {}
@@ -84,20 +89,41 @@ def getAccount(*argv):
 
 
 '''
+''--------------------------------------------------------
 '''
-if __name__ =="__main__":
-    # part = ['00126380', '00401731']
-
-    # with pd.ExcelWriter("1.xlsx") as writer:
-    #     for i, com in  enumerate(company):
-    #             a = getAccount(com, 2015, 2021)
-    #             a.to_excel(writer, com)
-
+def load():
     company = pd.read_excel("./t00/data/ref.xlsx", dtype=object)
     part    = list(company['corp_code'][:-1])
+    part    = ['00126380', '00401731']
 
-    with pd.ExcelWriter("1.xlsx") as writer:
-        for i,com in enumerate(part):
+    for i,com in enumerate(part):
+        print(i, com)
+        a = getAccount(com, 2015, 2021)
+
+'''--------------------------------------------------------
+'''
+def cal00():
+    company = pd.read_excel("./t00/data/ref.xlsx", dtype=object)
+    part    = list(company['corp_code'][:-1])
+    part    = ['00126380', '00401731']
+
+    infos = {}
+    for i,com in enumerate(part):
+        df = getAccount(com, 2015, 2021)
+        if len(df) != 0:
             print(i, com)
-            a = getAccount(com, 2015, 2021)
-            # a.to_excel(writer, com)
+            capital = df["자본총계"].astype("int")
+            
+            infos[com]={"자본총계": capital.max()}
+    
+    df = pd.DataFrame(infos).T
+
+    pass
+
+
+
+'''--------------------------------------------------------
+'''
+if __name__ =="__main__":
+    # load()
+    cal00()
