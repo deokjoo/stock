@@ -1,3 +1,8 @@
+#--------------------------------------------------------
+# S01 
+# 
+#--------------------------------------------------------
+
 import re
 from requests import Request, Session
 from fake_useragent import UserAgent
@@ -13,16 +18,17 @@ import pandas as pd
 import json
 import os.path
 
-'''
-'''
-apiKey       = "f1f64632cabe19da450a98456722f7bccf8d5c0f"
-# apiKey = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+#--------------------------------------------------------
+#
+#--------------------------------------------------------
 
+apiKey       = "f1f64632cabe19da450a98456722f7bccf8d5c0f"
 dartSingleAnt= "https://opendart.fss.or.kr/api/fnlttSinglAcnt.json"
 
-'''
-    reference : https://opendart.fss.or.kr/guide/detail.do?apiGrpCd=DS003&apiId=2019016
-'''
+
+# --------------------------------------------------------
+# reference : https://opendart.fss.or.kr/guide/detail.do?apiGrpCd=DS003&apiId=2019016
+# --------------------------------------------------------
 
 def getFromDart(url, params):
 
@@ -64,7 +70,7 @@ def getSingleAccount(corp_code, ts, te):
             continue
 
         rows = {}
-        for i,  item in enumerate(data["list"]):
+        for item in data["list"]:
             if item["sj_nm"] == "재무상태표" and item["fs_div"] == "OFS":
                 idx  = item["bsns_year"]
                 col  = item["account_nm"]
@@ -87,10 +93,9 @@ def getAccount(*argv):
 
     return df    
 
-
-'''
-''--------------------------------------------------------
-'''
+#--------------------------------------------------------
+#
+#--------------------------------------------------------
 def load():
     company = pd.read_excel("./t00/data/ref.xlsx", dtype=object)
     part    = list(company['corp_code'][:-1])
@@ -98,10 +103,11 @@ def load():
 
     for i,com in enumerate(part):
         print(i, com)
-        a = getAccount(com, 2015, 2021)
+        getAccount(com, 2015, 2021)
 
-'''--------------------------------------------------------
-'''
+#--------------------------------------------------------
+# find 
+#--------------------------------------------------------
 def cal00():
     company = pd.read_excel("./t00/data/ref.xlsx", dtype=object)
     part    = list(company['corp_code'][:-1])
