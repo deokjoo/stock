@@ -15,11 +15,13 @@ import zipfile
 import xmltodict
 import collections
 import pandas as pd
-
+import json
 
 apiKey       = "f1f64632cabe19da450a98456722f7bccf8d5c0f"
 dartSingleAnt= "https://opendart.fss.or.kr/api/fnlttSinglAcnt.json"
+
 '''
+    reference : https://opendart.fss.or.kr/guide/detail.do?apiGrpCd=DS003&apiId=2019016
 '''
 
 def getFromDart(url, params):
@@ -36,21 +38,43 @@ def getFromDart(url, params):
     return resp
 
 def getSingleAccount():
-    param0 = \
-    {
-        "crtfc_key": apiKey,
-        "corp_code":"00126380",
-        "bsns_year":"2018",
-        "reprt_code":"11013"
-    }
 
-    resp = getFromDart(dartSingleAnt, param0) 
 
-    return resp
+    #
+    #
+    columns = ['유동자산', '비유동자산', '자산총계', '유동부채', '비유동부채', '부채총계', '자본금', '이익잉여금', '자본총계']
+    df = pd.DataFrame( columns=columns)
+
+    #
+    for year in ["2017", "2018", "2019", "2020"]:
+        param0 = \
+        {
+            "crtfc_key" : apiKey,
+            "corp_code" :"00126380",
+            "bsns_year" : year,
+            "reprt_code":"11013"
+        }
+
+        resp = getFromDart(dartSingleAnt, param0) 
+        data = json.loads(resp.content)
+
+        rows = {}
+        for i,  item in enumerate(data["list"]):
+            if item["sj_nm"] == "재무상태표" and item["fs_div"] == "OFS":
+                idx       = item["bsns_year"]
+                col       = item["account_nm"]
+                rows[col] = item["thstrm_amount"]
+                
+        df.loc[idx] =rows
+
+        print("load %s", year)
+
+    df = df.apply( lambda x : x.str.replace(",",""))
+    df = df.astype("float") / 1000000
+
+    return df
 
 '''
 '''
 if __name__ =="__main__":
-    resp = getSingleAccount()
-
-    resp.content
+    df = getSingleAccount()
