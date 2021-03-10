@@ -72,7 +72,6 @@ def getSingleAccount(corp_code, ts, te):
         rows = {}
         for item in data["list"]:
             if item["sj_nm"] == "재무상태표" and item["fs_div"] == "OFS":
-                idx  = item["bsns_year"]
                 col  = item["account_nm"]
                 val  = item["thstrm_amount"]
                 
