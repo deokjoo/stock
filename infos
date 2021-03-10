@@ -7,3 +7,22 @@ check below regular expression
 
 review library
     BytesIO
+
+
+import collections
+
+a_dict = collections.defaultdict(list)
+
+for item in doc['result']['list']:
+        for key in item:
+            a_dict[key].append(item[key])
+
+f[df["stock_code"] .values != None].head()        
+
+df1 = pd.DataFrame  (a_dict)
+df2 = pd.read_excel ("./data/list.xlsx")
+df2['종목코드'] = df2['종목코드'].apply(lambda x: '{:0>6d}'.format(x))
+
+df3 = pd.merge(df2, df1, how="left", left_on="종목코드", right_on="stock_code")
+df3 = df3[['회사명', '종목코드', 'corp_code','업종', '주요제품', '상장일', '결산월', '대표자명', '홈페이지', '지역']]
+df3.to_excel("./data/ref.xlsx")
