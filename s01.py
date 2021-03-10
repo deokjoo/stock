@@ -1,8 +1,3 @@
-
-
-
-# https://opendart.fss.or.kr/api/fnlttSinglAcnt.json?crtfc_key=f1f64632cabe19da450a98456722f7bccf8d5c0f&corp_code=00126380&bsns_year=2018&reprt_code=11011
-# https://opendart.fss.or.kr/api/fnlttSinglAcnt.json?crtfc_key=f1f64632cabe19da450a98456722f7bccf8d5c0f&corp_code=00126380&bsns_year=2018&reprt_code=11013
 import re
 from requests import Request, Session
 from fake_useragent import UserAgent
@@ -37,7 +32,7 @@ def getFromDart(url, params):
 
     return resp
 
-def getSingleAccount(ts, te):
+def getSingleAccount(corp_code, ts, te):
     #
     #
     columns = ['유동자산', '비유동자산', '자산총계', '유동부채', '비유동부채', '부채총계', '자본금', '이익잉여금', '자본총계']
@@ -47,10 +42,7 @@ def getSingleAccount(ts, te):
     for year in range(ts, te):
         param0 = \
         {
-            "crtfc_key" : apiKey,
-            "corp_code" :"00126380",
-            "bsns_year" : str(year),
-            "reprt_code":"11013"
+            "crtfc_key" : apiKey, "corp_code" : corp_code, "bsns_year" : str(year), "reprt_code":"11011"
         }
 
         resp = getFromDart(dartSingleAnt, param0) 
@@ -77,4 +69,9 @@ def getSingleAccount(ts, te):
 '''
 '''
 if __name__ =="__main__":
-    df = getSingleAccount(2015, 2016)
+    company = ['00126380', '00401731']
+
+    with pd.ExcelWriter("1.xlsx") as writer:
+        for i, com in  enumerate(company):
+                a = getSingleAccount(com, 2015, 2021)
+                a.to_excel(writer, com)

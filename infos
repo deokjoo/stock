@@ -73,3 +73,9 @@ quarter = pd.Timestamp(dte(t.da2016, 2, 29)).quarter
 
 columns = ['유동자산', '비유동자산', '자산총계', '유동부채', '비유동부채', '부채총계', '자본금', '이익잉여금', '자본총계']
 df = pd.DataFrame( columns=columns)
+
+
+with pd.ExcelWriter("1.xlsx") as writer:
+    for i, com in  enumerate(company):
+            a = getSingleAccount(com, 2015, 2021)
+            a.to_excel(writer, com)
