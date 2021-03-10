@@ -37,26 +37,26 @@ def getFromDart(url, params):
 
     return resp
 
-def getSingleAccount():
-
-
+def getSingleAccount(ts, te):
     #
     #
     columns = ['유동자산', '비유동자산', '자산총계', '유동부채', '비유동부채', '부채총계', '자본금', '이익잉여금', '자본총계']
     df = pd.DataFrame( columns=columns)
 
     #
-    for year in ["2017", "2018", "2019", "2020"]:
+    for year in range(ts, te):
         param0 = \
         {
             "crtfc_key" : apiKey,
             "corp_code" :"00126380",
-            "bsns_year" : year,
+            "bsns_year" : str(year),
             "reprt_code":"11013"
         }
 
         resp = getFromDart(dartSingleAnt, param0) 
         data = json.loads(resp.content)
+        if data['status'] != '000':
+            continue
 
         rows = {}
         for i,  item in enumerate(data["list"]):
@@ -77,4 +77,4 @@ def getSingleAccount():
 '''
 '''
 if __name__ =="__main__":
-    df = getSingleAccount()
+    df = getSingleAccount(2015, 2016)

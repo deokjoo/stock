@@ -68,7 +68,7 @@ Out[31]:
  import datetime as dt
 import pandas as pd
 
-quarter = pd.Timestamp(dt.date(2016, 2, 29)).quarter
+quarter = pd.Timestamp(dte(t.da2016, 2, 29)).quarter
 
 
 columns = ['유동자산', '비유동자산', '자산총계', '유동부채', '비유동부채', '부채총계', '자본금', '이익잉여금', '자본총계']
