@@ -62,22 +62,30 @@ def getSingleAccount(corp_code, ts, te):
 
             '''parsing'''
             data = json.loads(resp.content)
-            with open(fname, "w") as json_file:
-                json.dump(data, json_file)
+            if data['status'] == '000' or data['status'] == '013':  
+                with open(fname, "w") as json_file:
+                    json.dump(data, json_file)
 
         if data['status'] != '000':
-            print(data['status'], data['message'])
+            print(corp_code, data['status'], data['message'])
             continue
 
-        rows = {}
+        rows = {"부채총계"  :"0",
+                "비유동부채":"0",
+                "비유동자산":"0",
+                "유동부채"  :"0", 
+                "유동자산"  :"0", 
+                "이익잉여금":"0", 
+                "자본금"    :"0",
+                "자본총계"  :"0",
+                "자산총계"  :"0"}
         for item in data["list"]:
             if item["sj_nm"] == "재무상태표" and item["fs_div"] == "OFS":
                 col  = item["account_nm"]
                 val  = item["thstrm_amount"]
                 
-                rows[col] = val        
-        
-        accDic[str(year)]= rows
+                rows[col] = val
+            accDic[str(year)]= rows
 
     return accDic
 
@@ -85,9 +93,12 @@ def getSingleAccount(corp_code, ts, te):
 '''
 def getAccount(*argv):
     accDic = getSingleAccount(*argv)
+    if len(accDic) == 0:
+        return None
 
     df = pd.DataFrame(accDic).T
     df = df.apply( lambda x : x.str.replace(",",""))
+    df = df.apply( lambda x : x.str.replace("-",""))
     # df = df.astype("float")
 
     return df    
@@ -98,7 +109,7 @@ def getAccount(*argv):
 def load():
     company = pd.read_excel("./t00/data/ref.xlsx", dtype=object)
     part    = list(company['corp_code'][:-1])
-    part    = ['00126380', '00401731']
+    # part    = ['00126380', '00401731']
 
     for i,com in enumerate(part):
         print(i, com)
@@ -109,14 +120,12 @@ def load():
 #--------------------------------------------------------
 def cal00():
     company = pd.read_excel("./t00/data/ref.xlsx", dtype=object)
-    part    = list(company['corp_code'][:-1])
-    part    = ['00126380', '00401731']
+    part    = list(company['corp_code'][:1000])
 
     infos = {}
     for i,com in enumerate(part):
-        df = getAccount(com, 2015, 2021)
-        if len(df) != 0:
-            print(i, com)
+        df = getAccount(com, 2019, 2020)
+        if df is not None:
             capital = df["자본총계"].astype("int")
             
             infos[com]={"자본총계": capital.max()}
