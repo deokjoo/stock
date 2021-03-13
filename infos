@@ -84,7 +84,7 @@ with pd.ExcelWriter("1.xlsx") as writer:
 from s01 import getAccount
 import pandas as pd
 
-company = pd.read_excel("./data/ref.xlsx", dtype=object)
+company = pd.read_excel("./t00/data/ref.xlsx", dtype=object)
 part    = list(company['corp_code'][100:110])
 
 with pd.ExcelWriter("1.xlsx") as writer:
@@ -92,3 +92,11 @@ with pd.ExcelWriter("1.xlsx") as writer:
         print(com)
         a = getAccount(com, 2015, 2021)
         a.to_excel(writer, com)
+
+import pandas pd
+from t00.s01 import cal00
+
+company = pd.read_excel("./t00/data/ref.xlsx", dtype=object)
+df      = cal00(2019)
+top = pd.merge(left =company, right=df, how="left", left_on="corp_code", right_on=df.index)
+top["회사명"][top[ "당기순이익"] > 10**12]
