@@ -25,7 +25,6 @@ import os.path
 apiKey       = "f1f64632cabe19da450a98456722f7bccf8d5c0f"
 dartSingleAnt= "https://opendart.fss.or.kr/api/fnlttSinglAcnt.json"
 
-
 # --------------------------------------------------------
 # reference : https://opendart.fss.or.kr/guide/detail.do?apiGrpCd=DS003&apiId=2019016
 # --------------------------------------------------------
@@ -40,7 +39,7 @@ def getFromDart(url, params):
         print(prepped.url)
 
         resp = s.send(prepped)
-
+    
     return resp
 
 def getSingleAccount(corp_code, ts, te):
@@ -83,8 +82,10 @@ def getSingleAccount(corp_code, ts, te):
             if item["sj_nm"] == "재무상태표" and item["fs_div"] == "OFS":
                 col  = item["account_nm"]
                 val  = item["thstrm_amount"]
-                
-                rows[col] = val
+                ''' check whether 'val' is valid '''
+                if val is not '-':
+                    rows[col] = val
+
             accDic[str(year)]= rows
 
     return accDic
@@ -120,19 +121,21 @@ def load():
 #--------------------------------------------------------
 def cal00():
     company = pd.read_excel("./t00/data/ref.xlsx", dtype=object)
-    part    = list(company['corp_code'][:1000])
-
+    part    = list(company['corp_code'][:-1])
+    accHeader = ["부채총계" ,"비유동부채","비유동자산","유동부채","유동자산","이익잉여금","자본금","자본총계","자산총계"]
+    
     infos = {}
-    for i,com in enumerate(part):
+    for com in part:
         df = getAccount(com, 2019, 2020)
         if df is not None:
-            capital = df["자본총계"].astype("int")
             
-            infos[com]={"자본총계": capital.max()}
-    
-    df = pd.DataFrame(infos).T
+            infos[com]={}
+            for item in accHeader:
+                infos[com][item] = df[item].astype("int")
 
-    pass
+    df = pd.DataFrame(infos).T.astype("int")
+
+    return df
 
 
 
